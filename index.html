@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS PPKn Kelas 12 - Lembaga Penegak Hukum di Indonesia</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- html2canvas for Certificate Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6',
+                            600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .accordion-content { transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease-out; max-height: 0; opacity: 0; overflow: hidden; }
+        .accordion-content.open { opacity: 1; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- ================= 1. LOGIN SCREEN ================= -->
+    <div id="loginScreen" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 space-y-6 border border-slate-100">
+            <div class="text-center space-y-2">
+                <div class="w-14 h-14 bg-brand-600 text-white rounded-xl flex items-center justify-center mx-auto shadow-md text-2xl">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900">Portal LMS PPKn Kelas 12</h2>
+                <p class="text-xs text-slate-500">BAB II: Peran Lembaga Penegak Hukum (Materi Diperluas & HOTS)</p>
+            </div>
+
+            <!-- Tab Switcher (Siswa / Guru) -->
+            <div class="flex bg-slate-100 p-1 rounded-xl">
+                <button type="button" onclick="switchLoginTab('student')" id="tabStudentBtn" class="flex-1 py-2 text-xs font-bold rounded-lg bg-white text-brand-600 shadow-sm transition">Masuk Siswa</button>
+                <button type="button" onclick="switchLoginTab('teacher')" id="tabTeacherBtn" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-800 transition">Dashboard Guru</button>
+            </div>
+
+            <!-- Student Form -->
+            <form id="studentLoginForm" onsubmit="handleStudentLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Lengkap Siswa</label>
+                    <input type="text" id="studentNameInput" required placeholder="Contoh: Budi Santoso" class="w-full text-sm p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nomor Absen / Kelas</label>
+                    <input type="text" id="studentClassInput" required placeholder="Contoh: XII IPA 1 / 12" class="w-full text-sm p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-xl shadow transition text-sm">
+                    Mulai Belajar Sekarang <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </form>
+
+            <!-- Teacher Form -->
+            <form id="teacherLoginForm" onsubmit="handleTeacherLogin(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Password Guru</label>
+                    <input type="password" id="teacherPasswordInput" required placeholder="Masukkan password (default: guru123)" class="w-full text-sm p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+                <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-xl shadow transition text-sm">
+                    Buka Dashboard Guru <i class="fa-solid fa-lock-open ml-1"></i>
+                </button>
+            </form>
+
+            <div class="text-center text-xs font-semibold text-brand-700 bg-brand-50 py-2 rounded-lg border border-brand-100">
+                <i class="fa-solid fa-chalkboard-user mr-1"></i> Guru Pengampu: Z. Asmarady, S.Pd.
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= 2. MAIN LMS APP CONTAINER ================= -->
+    <div id="mainAppContainer" class="hidden flex-col min-h-screen">
+
+        <!-- NAVBAR -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center space-x-3">
+                        <button id="mobileMenuBtn" class="lg:hidden text-slate-600 hover:text-brand-600 focus:outline-none p-2 rounded-md">
+                            <i class="fa-solid fa-bars text-xl"></i>
+                        </button>
+                        <div class="bg-brand-600 text-white p-2 rounded-lg shadow-sm">
+                            <i class="fa-solid fa-scale-balanced text-xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="font-bold text-slate-900 text-sm sm:text-base leading-tight">BAB II: PERAN LEMBAGA PENEGAK HUKUM</h1>
+                            <p class="text-xs text-slate-500 hidden sm:block">Siswa: <span id="navStudentName" class="font-semibold text-brand-600">-</span> | Pengampu: <span class="font-semibold text-slate-700">Z. Asmarady, S.Pd.</span></p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-4">
+                        <div class="hidden sm:flex flex-col items-end">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs font-semibold text-slate-600">Progres:</span>
+                                <span id="progressPercent" class="text-xs font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-200">0%</span>
+                            </div>
+                            <div class="w-36 bg-slate-200 h-2 rounded-full mt-1 overflow-hidden">
+                                <div id="progressBar" class="bg-brand-600 h-full w-0 transition-all duration-500 ease-out"></div>
+                            </div>
+                        </div>
+                        <button onclick="logout()" title="Keluar Akun" class="text-xs bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 px-3 py-2 rounded-lg transition font-medium flex items-center gap-1.5">
+                            <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">Keluar</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT BODY -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- SIDEBAR NAV -->
+            <aside id="sidebar" class="lg:col-span-4 xl:col-span-3 bg-white rounded-xl shadow-sm border border-slate-200 p-4 h-fit fixed inset-y-0 left-0 z-40 transform -translate-x-full lg:relative lg:translate-x-0 transition duration-300 ease-in-out overflow-y-auto lg:overflow-visible w-72 lg:w-auto">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                    <div>
+                        <h2 class="font-bold text-slate-800 text-sm tracking-wide uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-brand-600"></i> Alur Belajar
+                        </h2>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Guru: Z. Asmarady, S.Pd.</p>
+                    </div>
+                    <button id="closeSidebarBtn" class="lg:hidden text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                <nav class="space-y-2" id="moduleNavList"></nav>
+            </aside>
+            <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 hidden lg:hidden"></div>
+
+            <!-- MODULE MAIN CONTAINER -->
+            <main class="lg:col-span-8 xl:col-span-9 space-y-6">
+                
+                <!-- MODUL 1: MOOD & APERSEPSI -->
+                <section id="module-1" class="module-card bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden">
+                    <div class="bg-gradient-to-r from-brand-600 to-indigo-700 p-6 text-white">
+                        <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-medium uppercase mb-2 inline-block">Modul 1 dari 5</span>
+                        <h2 class="text-xl sm:text-2xl font-bold">Pengantar & Mood Checker</h2>
+                        <p class="text-brand-100 text-sm mt-1">Refleksi awal tentang keadilan dan pentingnya rule of law di Indonesia.</p>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="bg-slate-50 rounded-xl p-5 border border-slate-200 text-center">
+                            <h3 class="font-semibold text-slate-800 mb-1">Bagaimana kesiapan belajar Anda hari ini?</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-md mx-auto mt-4">
+                                <button onclick="setMood('sedih', this)" class="mood-btn p-3 bg-white border border-slate-200 rounded-lg hover:border-brand-500 hover:bg-brand-50 transition flex flex-col items-center gap-1 shadow-sm">
+                                    <span class="text-3xl">😢</span><span class="text-xs font-semibold text-slate-700">Kurang Fokus</span>
+                                </button>
+                                <button onclick="setMood('biasa', this)" class="mood-btn p-3 bg-white border border-slate-200 rounded-lg hover:border-brand-500 hover:bg-brand-50 transition flex flex-col items-center gap-1 shadow-sm">
+                                    <span class="text-3xl">😐</span><span class="text-xs font-semibold text-slate-700">Cukup Siap</span>
+                                </button>
+                                <button onclick="setMood('senang', this)" class="mood-btn p-3 bg-white border border-slate-200 rounded-lg hover:border-brand-500 hover:bg-brand-50 transition flex flex-col items-center gap-1 shadow-sm">
+                                    <span class="text-3xl">😊</span><span class="text-xs font-semibold text-slate-700">Sangat Semangat!</span>
+                                </button>
+                            </div>
+                            <div id="moodFeedback" class="hidden mt-4 p-4 rounded-lg text-sm text-left font-medium"></div>
+                        </div>
+
+                        <div class="border-l-4 border-brand-500 bg-brand-50/50 p-5 rounded-r-lg space-y-2">
+                            <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2"><i class="fa-solid fa-scale-unbalanced text-brand-600"></i> Pertanyaan Pemantik Analitis</h4>
+                            <p class="text-slate-700 text-sm leading-relaxed">
+                                Indonesia secara tegas dinyatakan sebagai <strong>Negara Hukum (Rechtsstaat)</strong> dalam Pasal 1 Ayat 3 UUD NRI 1945. Namun, mengapa di masyarakat masih sering terdengar ungkapan <em>"Hukum tajam ke bawah, tumpul ke atas"</em>? Apakah kelemahan tersebut bersumber dari substansi hukumnya, struktur lembaga penegaknya, atau budaya hukum masyarakatnya?
+                            </p>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-100 flex justify-end">
+                            <button onclick="completeModule(1)" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm px-5 py-2.5 rounded-lg shadow transition flex items-center gap-2">
+                                <span>Pahami Materi & Struktur Lengkap</span> <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODUL 2: MATERI KOMPREHENSIF & STRUKTUR LEMBAGA PENEGAK HUKUM -->
+                <section id="module-2" class="module-card bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden">
+                    <div class="bg-gradient-to-r from-brand-600 to-indigo-700 p-6 text-white">
+                        <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-medium uppercase mb-2 inline-block">Modul 2 dari 5</span>
+                        <h2 class="text-xl sm:text-2xl font-bold">Materi Mendalam & Struktur Lembaga Penegak Hukum</h2>
+                        <p class="text-brand-100 text-sm mt-1">Eksplorasi luas peran, hierarki, asas, kewenangan khusus, dan skema kelembagaan hukum di Indonesia.</p>
+                    </div>
+                    <div class="p-6 space-y-8">
+                        
+                        <!-- BAGIAN VISUAL STRUKTUR ORGANISASI / SITEM PENEGAKAN HUKUM -->
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
+                            <div class="text-center max-w-xl mx-auto space-y-1">
+                                <span class="text-xs font-bold text-brand-600 uppercase tracking-widest">Bagan Interaktif</span>
+                                <h3 class="font-bold text-slate-900 text-base">Hierarki & Sistem Peradilan Perkara Pidana di Indonesia (Criminal Justice System)</h3>
+                                <p class="text-xs text-slate-500">Sistem terpadu antar lembaga yang saling terhubung dari hulu hingga hilir penegakan hukum.</p>
+                            </div>
+
+                            <!-- Visual Diagram Grid -->
+                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-2">
+                                <div class="bg-white p-4 rounded-xl border border-blue-200 text-center shadow-xs space-y-2 relative">
+                                    <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto font-bold text-sm">1</div>
+                                    <h4 class="font-bold text-slate-800 text-xs uppercase">Penyidikan</h4>
+                                    <p class="text-[11px] text-slate-600"><strong>POLRI / KPK</strong><br>Menangkap, menggeledah, mengumpulkan alat bukti awal.</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border border-emerald-200 text-center shadow-xs space-y-2 relative">
+                                    <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto font-bold text-sm">2</div>
+                                    <h4 class="font-bold text-slate-800 text-xs uppercase">Penuntutan</h4>
+                                    <p class="text-[11px] text-slate-600"><strong>KEJAKSAAN RI</strong><br>Asas Dominus Litis, menyusun dakwaan ke pengadilan.</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border border-amber-200 text-center shadow-xs space-y-2 relative">
+                                    <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto font-bold text-sm">3</div>
+                                    <h4 class="font-bold text-slate-800 text-xs uppercase">Peradilan & Putusan</h4>
+                                    <p class="text-[11px] text-slate-600"><strong>MA & PERADILAN</strong><br>Hakim memeriksa, mengadili, & memutus secara independen.</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border border-purple-200 text-center shadow-xs space-y-2 relative">
+                                    <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto font-bold text-sm">4</div>
+                                    <h4 class="font-bold text-slate-800 text-xs uppercase">Pembelaan Hak</h4>
+                                    <p class="text-[11px] text-slate-600"><strong>ADVOKAT</strong><br>Memberikan jasa pendampingan hukum dan Pro Bono.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MATERI ACCORDION DIPERLUAS -->
+                        <div class="space-y-4">
+                            <h3 class="font-bold text-slate-800 text-sm uppercase tracking-wider text-slate-500">Uraian Materi & Kewenangan Lengkap</h3>
+
+                            <!-- ACCORDION 1: POLRI -->
+                            <div class="border border-slate-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                                <button onclick="toggleAcc('acc-1')" class="w-full text-left p-4 bg-slate-50 font-semibold text-slate-800 flex justify-between items-center hover:bg-slate-100 transition">
+                                    <span class="flex items-center gap-2.5"><i class="fa-solid fa-shield-halved text-blue-600 text-lg"></i> 1. Kepolisian Negara Republik Indonesia (POLRI)</span>
+                                    <i id="ico-acc-1" class="fa-solid fa-chevron-down text-slate-400"></i>
+                                </button>
+                                <div id="acc-1" class="accordion-content">
+                                    <div class="p-5 border-t text-sm text-slate-700 space-y-3 leading-relaxed">
+                                        <p><strong>Dasar Hukum Utama:</strong> Undang-Undang Nomor 2 Tahun 2002 tentang Kepolisian Negara Republik Indonesia, Undang-Undang Nomor 5 Tahun 2026 tentang Perubahan Ketiga atas UU Nomor 2 Tahun 2002 yang mengatur antara lain penanganan tindak pidana siber, afirmasi disabilitas, netralitas politik, serta penyesuaian batas usia pensiun anggota Polri.</p>
+                                        <p><strong>Kedudukan & Peran Strategis:</strong> Polri adalah alat negara yang berperan memelihara keamanan dan ketertiban masyarakat, menegakkan hukum, serta memberikan perlindungan, pengayoman, dan pelayanan kepada masyarakat dalam rangka terpeliharanya keamanan dalam negeri.</p>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                                            <div class="bg-blue-50/60 p-3 rounded-lg border border-blue-100 text-xs space-y-1">
+                                                <p class="font-bold text-blue-900">Wewenang Kepolisian (Pasal 16 UU No. 2/2002):</p>
+                                                <ul class="list-disc pl-4 space-y-0.5 text-blue-800">
+                                                    <li>Melakukan penangkapan, penahanan, penggeledahan, dan penyitaan.</li>
+                                                    <li>Melarang setiap orang meninggalkan atau memasuki tempat kejadian perkara (TKP).</li>
+                                                    <li>Membawa dan menghadapkan orang ke penyidik dalam rangka penyidikan.</li>
+                                                    <li>Menyerahkan berkas perkara kepada Penuntut Umum (Kejaksaan).</li>
+                                                </ul>
+                                            </div>
+                                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs space-y-1">
+                                                <p class="font-bold text-slate-900">Fokus Tugas Preventif & Represif:</p>
+                                                <p class="text-slate-600">Polri tidak hanya menindak kejahatan setelah terjadi (represif), namun juga mengedepankan pencegahan dini (preventif) melalui patroli, pembinaan ketertiban masyarakat, dan rekayasa keamanan berlalu lintas.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ACCORDION 2: KEJAKSAAN -->
+                            <div class="border border-slate-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                                <button onclick="toggleAcc('acc-2')" class="w-full text-left p-4 bg-slate-50 font-semibold text-slate-800 flex justify-between items-center hover:bg-slate-100 transition">
+                                    <span class="flex items-center gap-2.5"><i class="fa-solid fa-user-ninja text-emerald-600 text-lg"></i> 2. Kejaksaan Republik Indonesia (Jaksa)</span>
+                                    <i id="ico-acc-2" class="fa-solid fa-chevron-down text-slate-400"></i>
+                                </button>
+                                <div id="acc-2" class="accordion-content">
+                                    <div class="p-5 border-t text-sm text-slate-700 space-y-3 leading-relaxed">
+                                        <p><strong>Dasar Hukum Utama:</strong> UU No. 16 Tahun 2004 jo. <strong>Undang-Undang Nomor 11 Tahun 2021</strong> tentang Perubahan atas UU No. 16 Tahun 2004 tentang Kejaksaan RI.</p>
+                                        <p><strong>Asas Utama Dominus Litis:</strong> Kejaksaan adalah satu-satunya instansi pelaksana kekuasaan negara di bidang penuntutan yang memegang hak monopoli menuntut perkara ke hadapan sidang pengadilan.</p>
+                                        <div class="bg-emerald-50/60 p-4 rounded-xl border border-emerald-200 text-xs space-y-2 text-emerald-900">
+                                            <p class="font-bold text-sm">Tri-Tugas Utama Kejaksaan:</p>
+                                            <ol class="list-decimal pl-4 space-y-1">
+                                                <li><strong>Bidang Pidana:</strong> Melakukan penuntutan, pelaksanaan penetapan hakim/putusan pengadilan yang telah inkrah (eksekutor), serta penyidikan tindak pidana khusus (korupsi dan pelanggaran HAM berat).</li>
+                                                <li><strong>Bidang Perdata dan TUN:</strong> Bertindak sebagai Jaksa Pengacara Negara (JPN) untuk menyelamatkan kekayaan negara atau menyelesaikan sengketa perdata pemerintah.</li>
+                                                <li><strong>Ketertiban & Ketenteraman Umum:</strong> Peningkatan kesadaran hukum masyarakat, pengamanan kebijakan penegakan hukum, dan pengawasan peredaran barang cetakan/aliran kepercayaan.</li>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ACCORDION 3: KEHAKIMAN -->
+                            <div class="border border-slate-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                                <button onclick="toggleAcc('acc-3')" class="w-full text-left p-4 bg-slate-50 font-semibold text-slate-800 flex justify-between items-center hover:bg-slate-100 transition">
+                                    <span class="flex items-center gap-2.5"><i class="fa-solid fa-gavel text-amber-600 text-lg"></i> 3. Kekuasaan Kehakiman (Hakim & Lembaga Peradilan)</span>
+                                    <i id="ico-acc-3" class="fa-solid fa-chevron-down text-slate-400"></i>
+                                </button>
+                                <div id="acc-3" class="accordion-content">
+                                    <div class="p-5 border-t text-sm text-slate-700 space-y-3 leading-relaxed">
+                                        <p><strong>Dasar Hukum:</strong> Pasal 24 & 24A UUD NRI 1945 serta <strong>UU No. 48 Tahun 2009</strong> tentang Kekuasaan Kehakiman.</p>
+                                        <p><strong>Prinsip Kemerdekaan Peradilan:</strong> Kekuasaan kehakiman adalah kekuasaan negara yang merdeka untuk menyelenggarakan peradilan guna menegakkan hukum dan keadilan berdasarkan Pancasila dan UUD 1945.</p>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                                            <div class="bg-amber-50/60 p-3 rounded-lg border border-amber-200 text-xs space-y-1">
+                                                <p class="font-bold text-amber-900">Empat Lingkungan Peradilan di Bawah MA:</p>
+                                                <ul class="list-disc pl-4 space-y-0.5 text-amber-900">
+                                                    <li><strong>Peradilan Umum:</strong> Perkara pidana & perdata sipil.</li>
+                                                    <li><strong>Peradilan Agama:</strong> Perkara perdata khusus umat Islam (nikah, waris, wakaf).</li>
+                                                    <li><strong>Peradilan Militer:</strong> Tindak pidana yang melibatkan anggota TNI.</li>
+                                                    <li><strong>Peradilan TUN:</strong> Sengketa tata usaha negara antara warga vs pejabat.</li>
+                                                </ul>
+                                            </div>
+                                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs space-y-1">
+                                                <p class="font-bold text-slate-900">Mahkamah Konstitusi (MK):</p>
+                                                <p class="text-slate-600">Berwenang menguji undang-undang terhadap UUD 1945, memutus sengketa kewenangan lembaga negara, pembubaran partai politik, dan perselisihan hasil pemilu.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ACCORDION 4: ADVOKAT -->
+                            <div class="border border-slate-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                                <button onclick="toggleAcc('acc-4')" class="w-full text-left p-4 bg-slate-50 font-semibold text-slate-800 flex justify-between items-center hover:bg-slate-100 transition">
+                                    <span class="flex items-center gap-2.5"><i class="fa-solid fa-briefcase text-purple-600 text-lg"></i> 4. Advokat / Penasihat Hukum</span>
+                                    <i id="ico-acc-4" class="fa-solid fa-chevron-down text-slate-400"></i>
+                                </button>
+                                <div id="acc-4" class="accordion-content">
+                                    <div class="p-5 border-t text-sm text-slate-700 space-y-3 leading-relaxed">
+                                        <p><strong>Dasar Hukum:</strong> Undang-Undang Nomor 18 Tahun 2003 tentang Advokat.</p>
+                                        <p><strong>Peran Profesional:</strong> Advokat berstatus sebagai penegak hukum yang bebas, mandiri, dan bertanggung jawab, dijamin oleh hukum dan undang-undang. Advokat bertugas memberikan jasa hukum baik berupa konsultasi, negosiasi, maupun pendampingan/pembelaan di dalam maupun di luar pengadilan.</p>
+                                        <div class="bg-purple-50 p-3 rounded-lg border border-purple-100 text-xs text-purple-900 space-y-1">
+                                            <p class="font-bold">Hak Imunitas & Kewajiban Pro Bono:</p>
+                                            <p>Advokat bebas mengeluarkan pendapat dalam membela kliennya dan tidak dapat dituntut secara perdata maupun pidana dalam menjalankan tugas profesinya dengan iktikad baik. Selain itu, advokat wajib memberikan bantuan hukum cuma-cuma (<strong>Pro Bono</strong>) bagi pencari keadilan yang tidak mampu.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ACCORDION 5: KPK -->
+                            <div class="border border-slate-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                                <button onclick="toggleAcc('acc-5')" class="w-full text-left p-4 bg-slate-50 font-semibold text-slate-800 flex justify-between items-center hover:bg-slate-100 transition">
+                                    <span class="flex items-center gap-2.5"><i class="fa-solid fa-building-shield text-red-600 text-lg"></i> 5. Komisi Pemberantasan Korupsi (KPK)</span>
+                                    <i id="ico-acc-5" class="fa-solid fa-chevron-down text-slate-400"></i>
+                                </button>
+                                <div id="acc-5" class="accordion-content">
+                                    <div class="p-5 border-t text-sm text-slate-700 space-y-3 leading-relaxed">
+                                        <p><strong>Dasar Hukum:</strong> UU No. 30 Tahun 2002 jo. <strong>UU No. 19 Tahun 2019</strong> tentang Perubahan Kedua atas UU KPK.</p>
+                                        <p><strong>Karakteristik Khusus:</strong> KPK adalah lembaga negara bersifat independen yang dibentuk dengan tujuan meningkatkan daya guna dan hasil guna terhadap upaya pemberantasan tindak pidana korupsi.</p>
+                                        <ul class="list-disc pl-5 space-y-1 text-xs text-slate-600">
+                                            <li>Memiliki kewenangan penyelidikan, penyidikan, dan penuntutan sekaligus dalam perkara korupsi.</li>
+                                            <li>Berwenang melakukan supervisi dan koordinasi terhadap instansi yang berwenang memberantas korupsi (Kepolisian dan Kejaksaan).</li>
+                                            <li>Berwenang mengambil alih kasus korupsi yang ditangani instansi lain dalam kondisi tertentu (misal mangkrak atau ada intervensi).</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="pt-4 border-t flex justify-between">
+                            <button onclick="switchMod(1)" class="text-slate-600 text-sm font-medium"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                            <button onclick="completeModule(2)" class="bg-brand-600 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow">Lanjut ke Eksplorasi Kasus <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODUL 3: EKSPLORASI KASUS ANALITIS -->
+                <section id="module-3" class="module-card bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden">
+                    <div class="bg-gradient-to-r from-brand-600 to-indigo-700 p-6 text-white">
+                        <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-medium uppercase mb-2 inline-block">Modul 3 dari 5</span>
+                        <h2 class="text-xl sm:text-2xl font-bold">Eksplorasi Kasus & Studi Dilema</h2>
+                        <p class="text-brand-100 text-sm mt-1">Uji kepekaan analisis prosedur peradilan hukum pidana.</p>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-3">
+                            <span class="text-xs font-bold text-brand-700 uppercase tracking-wider"><i class="fa-solid fa-file-contract"></i> Skenario Kasus Hukum Terpadu</span>
+                            <p class="text-sm text-slate-700 leading-relaxed">
+                                "Seorang oknum pejabat daerah diduga melalukan penyalahgunaan wewenang dana hibah senilai Rp 10 Miliar. Lembaga A melakukan penyelidikan dan pengumpulan barang bukti awal. Setelah berkas dinyatakan lengkap (P-21), kasus ini dilimpahkan ke Lembaga B untuk penyusunan surat dakwaan. Di persidangan, tersangka didampingi oleh Lembaga C untuk memastikan pembelaannya sah, sementara Keputusan sanksi penjara dijatuhkan secara independen oleh Lembaga D."
+                            </p>
+                        </div>
+                        <div class="space-y-4">
+                            <h4 class="font-semibold text-slate-800 text-sm">Berdasarkan skenario di atas, analisis kombinasi penegak hukum yang tepat untuk <u>Lembaga B (Penuntut)</u> dan <u>Lembaga D (Pemutus)</u> adalah:</h4>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-slate-50"><input type="radio" name="caseAns" value="A" class="mr-3"> A. Lembaga B adalah Kepolisian & Lembaga D adalah Advokat</label>
+                                <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-slate-50"><input type="radio" name="caseAns" value="B" class="mr-3"> B. Lembaga B adalah Kejaksaan (Jaksa) & Lembaga D adalah Hakim (Pengadilan)</label>
+                                <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-slate-50"><input type="radio" name="caseAns" value="C" class="mr-3"> C. Lembaga B adalah KPK & Lembaga D adalah Kepolisian</label>
+                            </div>
+                            <button onclick="checkCase()" class="text-xs bg-slate-900 text-white font-medium px-4 py-2.5 rounded-lg shadow">Verifikasi Analisis Anda</button>
+                            <div id="caseFeedback" class="hidden p-4 rounded-lg text-xs font-medium leading-relaxed"></div>
+                        </div>
+                        <div class="pt-4 border-t flex justify-between">
+                            <button onclick="switchMod(2)" class="text-slate-600 text-sm font-medium"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                            <button onclick="completeModule(3)" class="bg-brand-600 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow">Lanjut ke Kuis HOTS <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODUL 4: KUIS HOTS -->
+                <section id="module-4" class="module-card bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden">
+                    <div class="bg-gradient-to-r from-brand-600 to-indigo-700 p-6 text-white">
+                        <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-medium uppercase mb-2 inline-block">Modul 4 dari 5</span>
+                        <h2 class="text-xl sm:text-2xl font-bold">Kuis Formatif HOTS (5 Soal Analisis)</h2>
+                        <p class="text-brand-100 text-sm mt-1">Selesaikan 5 soal evaluasi tingkat tinggi. Passing Grade: 60/100.</p>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <form id="quizForm" class="space-y-6">
+                            
+                            <!-- SOAL HOTS 1 -->
+                            <div class="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                                <p class="font-semibold text-sm text-slate-900">1. Seorang tersangka pencurian yang tergolong warga miskin diancam hukuman 7 tahun penjara. Namun, ia tidak didampingi advokat selama penyidikan karena tidak mampu membayar jasa pengacara. Mengacu pada UU No. 18 Tahun 2003 dan KUHAP, apa dampak hukum terhadap jalannya proses peradilan tersebut?</p>
+                                <div class="space-y-2 text-xs sm:text-sm">
+                                    <label class="flex items-start gap-2 p-2 rounded hover:bg-white border border-transparent hover:border-slate-200 cursor-pointer">
+                                        <input type="radio" name="q1" value="A" class="mt-1">
+                                        <span>A. Proses penyidikan tetap sah karena kehadiran pengacara bersifat opsional tergantung keinginan penyidik.</span>
+                                    </label>
+                                    <label class="flex items-start gap-2 p-2 rounded hover:bg-white border border-transparent hover:border-slate-200 cursor-pointer">
+                                        <input type="radio" name="q1" value="B" class="mt-1">
+                                        <span>B. Penyidikan cacat hukum (batal demi hukum) karena tersangka ancaman pidana >5 tahun wajib didampingi penasihat hukum secara Pro Bono.</span>
+                                    </label>
+                                    <label class="flex items-start gap-2 p-2 rounded hover:bg-white border border-transparent hover:border-slate-200 cursor-pointer">
+                                        <input type="radio" name="q1" value="C" class="mt-1">
+                                        <span>C. Hakim otomatis akan membebaskan tersangka dari segala tuntutan tanpa perlu menyidangkan perkara.</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- SOAL HOTS 2 -->
+                            <div class="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                                <p class="font-semibold text-sm text-slate-900">2. Dalam sebuah kasus tindak pidana korupsi pembangunan jembatan daerah, penyidik Kepolisian dan penyidik KPK menemukan indikasi keterlibatan oknum Anggota DPR. Siapakah yang memegang kewenangan monopoli penuntutan akhir di Pengadilan Tindak Pidana Korupsi (Tipikor)?</p>
+                                <div class="space-y-2 text-xs sm:text-sm">
+                                    <label class="flex items-start gap-2 p-2 rounded hover:bg-white border border-transparent hover:border-slate-200 cursor-pointer">
+                                        <input type="radio" name="q2" value="A" class="mt-1">
+                                        <span>A. Penuntut Umum dari Kejaksaan / Penuntut KPK berdasarkan asas Dominus Litis.</span>
+                                    </label>
+                                    <label class="flex items-start gap-2 p-2 rounded hover:bg-white border border-transparent hover:border-slate-200 cursor-pointer">
+                                        <input type="radio" name="q2" value="B" class="mt-1">
+                                        <span>B. Tim Penyidik Kepolisian karena kepolisian pertama kali menemukan barang bukti.</span>
+                                    </label>
+                                    <label class="flex items-start gap-2 p-2 rounded hover:bg-white border border-transparent hover:border-slate-200 cursor-pointer">
+                                        <input type="radio" name="q2" value="C" class="mt-1">
+                                        <span>C. Ketua Pengadilan Negeri setempat melalui surat keputusan khusus.</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- SOAL HOTS 3 -->
+                            <div class="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                                <p class="font-semibold text-sm text-slate-900">3. Hakim dalam memutuskan perkara pidana diwajibkan berdasarkan sekurang-kurangnya dua alat bukti yang sah serta memperoleh keyakinan (Pasal 183 KUHAP). Manakala Hakim mendapat tekanan opini publik yang masif dari media sosial agar memutus hukuman mati, bagaimana sikap independensi Hakim yang benar menurut UU Kekuasaan Kehakiman?</p>
+                                <div class="space-y-2 text-xs sm:text-sm">
+                                    <label class="flex items-start gap-2 p-2 rounded hover:bg-white border border-transparent hover:border-slate-200 cursor-pointer">
+                                        <input type="radio" name="q3" value="A" class="mt-1">
+                                        <span>A. Mengikuti tuntutan opini publik demi menjaga citra nama baik institusi pengadilan di mata masyarakat.</span>
+                                    </label>
+                                    <label class="flex items-start gap-2 p-2 rounded hover:bg-white border border-transparent hover:border-slate-200 cursor-pointer">
+                                        <input type="radio" name="q3" value="B" class="mt-1">
+                                        <span>B. Tetap memutus bebas atau adil murni berdasarkan pembuktian fakta persidangan tanpa terintervensi oleh tekanan ekstra-yudisial.</span>
+                                    </label>
+                                    <label class="flex items-start gap-2 p-2 rounded hover:bg-white border border-transparent hover:border-slate-200 cursor-pointer">
+                                        <input type="radio" name="q3" value="C" class="mt-1">
+                                        <span>C. Menyerahkan sepenuhnya keputusan sanksi hukum kepada voting terbuka masyarakat.</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- SOAL HOTS 4 -->
+                            <div class="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                                <p class="font-semibold text-sm text-slate-900">4. Perhatikan kasus Restorative Justice (Keadilan Restoratif): Seorang anak di bawah umur mencuri ponsel bekas karena kelaparan. Polisi dan Jaksa memediasi korban dan pelaku hingga sepakat berdamai tanpa melanjutkan perkara ke meja hijau pengadilan. Mengapa pendekatan ini mulai diutamakan dalam hukum pidana modern di Indonesia?</p>
+                                <div class="space-y-2 text-xs sm:text-sm">
+                                    <label class="flex items-start gap-2 p-2 rounded hover:bg-white border border-transparent hover:border-slate-200 cursor-pointer">
+                                        <input type="radio" name="q4" value="A" class="mt-1">
+                                        <span>A. Karena lembaga penegak hukum malas mengurus perkara pidana ringan yang tidak bernilai uang besar.</span>
+                                    </label>
+                                    <label class="flex items-start gap-2 p-2 rounded hover:bg-white border border-transparent hover:border-slate-200 cursor-pointer">
+                                        <input type="radio" name="q4" value="B" class="mt-1">
+                                        <span>B. Untuk pemulihan keadaan semula, kemanusiaan, serta menghindari pemidanaan berlebih (overcrowding) lembaga pemasyarakatan.</span>
+                                    </label>
+                                    <label class="flex items-start gap-2 p-2 rounded hover:bg-white border border-transparent hover:border-slate-200 cursor-pointer">
+                                        <input type="radio" name="q4" value="C" class="mt-1">
+                                        <span>C. Agar UU Pidana tidak perlu lagi diberlakukan untuk seluruh warga negara Indonesia.</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- SOAL HOTS 5 -->
+                            <div class="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                                <p class="font-semibold text-sm text-slate-900">5. Lembaga KPK memiliki fungsi supervisi dan koordinasi terhadap penanganan kasus korupsi yang ditangani oleh Kepolisian dan Kejaksaan. Apabila sebuah kasus korupsi di daerah mengalami penanganan berlarut-larut (mangkrak) tanpa alasan yang jelas oleh penyidik daerah, tindakan konstitusional apa yang berhak dilakukan KPK?</p>
+                                <div class="space-y-2 text-xs sm:text-sm">
+                                    <label class="flex items-start gap-2 p-2 rounded hover:bg-white border border-transparent hover:border-slate-200 cursor-pointer">
+                                        <input type="radio" name="q5" value="A" class="mt-1">
+                                        <span>A. KPK berwenang mengambil alih (take over) penyidikan dan penuntutan kasus korupsi tersebut sesuai UU KPK.</span>
+                                    </label>
+                                    <label class="flex items-start gap-2 p-2 rounded hover:bg-white border border-transparent hover:border-slate-200 cursor-pointer">
+                                        <input type="radio" name="q5" value="B" class="mt-1">
+                                        <span>B. Membubarkan kantor Kepolisian dan Kejaksaan daerah tersebut secara sepihak.</span>
+                                    </label>
+                                    <label class="flex items-start gap-2 p-2 rounded hover:bg-white border border-transparent hover:border-slate-200 cursor-pointer">
+                                        <input type="radio" name="q5" value="C" class="mt-1">
+                                        <span>C. Menghentikan seluruh proses perkara pidana korupsi tersebut agar tidak menjadi beban negara.</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                        </form>
+
+                        <div id="quizResultBox" class="hidden p-4 rounded-xl text-center text-sm font-bold"></div>
+
+                        <div class="pt-4 border-t flex justify-between items-center">
+                            <button onclick="switchMod(3)" class="text-slate-600 text-sm font-medium"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                            <div class="flex gap-2">
+                                <button onclick="submitQuiz()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow">Kalkulasi Skor HOTS</button>
+                                <button id="nextMod4Btn" onclick="completeModule(4)" class="hidden bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow">Lanjut ke Penutup <i class="fa-solid fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MODUL 5: REFLEKSI & PENUTUP -->
+                <section id="module-5" class="module-card bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden">
+                    <div class="bg-gradient-to-r from-brand-600 to-indigo-700 p-6 text-white">
+                        <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-medium uppercase mb-2 inline-block">Modul 5 dari 5</span>
+                        <h2 class="text-xl sm:text-2xl font-bold">Refleksi Pembelajaran & Penyelesaian</h2>
+                        <p class="text-brand-100 text-sm mt-1">Tulis komitmen kesadaran hukum Anda dan unduh sertifikat resmi penyelesaian modul.</p>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-slate-700">Tuliskan Komitmen/Refleksi Pribadi Anda sebagai Warga Negara yang Taat Hukum:</label>
+                            <textarea id="reflectionText" rows="4" class="w-full text-sm p-3 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500" placeholder="Contoh: Saya berkomitmen untuk menghormati hukum mulai dari hal kecil seperti tertib berlalu lintas dan menolak segala bentuk suap/kecurangan..."></textarea>
+                        </div>
+
+                        <div id="certCard" class="hidden bg-amber-50 border border-amber-200 p-6 rounded-2xl text-center space-y-4 shadow-sm">
+                            <i class="fa-solid fa-award text-amber-600 text-4xl mb-1"></i>
+                            <div>
+                                <h3 class="font-bold text-amber-900 text-lg">Selamat! Anda Menuntaskan Seluruh Modul</h3>
+                                <p class="text-xs text-amber-800 mt-1">Skor Kuis HOTS Akhir Anda: <span id="finalScoreVal" class="font-bold text-sm bg-white px-2 py-0.5 rounded border border-amber-300">0</span> / 100.</p>
+                                <p class="text-[11px] text-amber-700 mt-0.5">Data nilai dan refleksi Anda telah otomatis tersimpan ke server guru.</p>
+                            </div>
+
+                            <!-- PREVIEW & DOWNLOAD SERTIFIKAT -->
+                            <div class="pt-2 flex flex-col items-center justify-center gap-3">
+                                <button onclick="downloadCertificate()" class="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-xl shadow-md transition flex items-center gap-2">
+                                    <i class="fa-solid fa-download"></i> Unduh Sertifikat Kelulusan Modul
+                                </button>
+                                <span class="text-[11px] text-amber-800">Sertifikat sah diterbitkan oleh LMS PPKn dan ditandatangani oleh Guru Pengampu.</span>
+                            </div>
+                        </div>
+
+                        <!-- HIDDEN CERTIFICATE TEMPLATE FOR CANVAS RENDERING -->
+                        <div id="certificateTemplate" class="hidden absolute -left-[9999px] w-[800px] bg-white border-[12px] border-amber-500 p-10 text-slate-800 font-sans shadow-2xl" style="box-sizing: border-box;">
+                            <div class="border-4 border-dashed border-slate-300 p-8 text-center space-y-4 relative bg-gradient-to-b from-slate-50 to-white">
+                                <div class="flex justify-between items-center text-xs text-slate-500 uppercase font-semibold tracking-widest">
+                                    <span>LMS PPKn Kelas 12</span>
+                                    <span>Nomor: CERT/PPKN/2026/XII</span>
+                                </div>
+                                <div class="w-16 h-16 bg-brand-600 text-white rounded-2xl flex items-center justify-center mx-auto shadow-md text-3xl">
+                                    <i class="fa-solid fa-award"></i>
+                                </div>
+                                <div class="space-y-1">
+                                    <h4 class="text-xs uppercase tracking-widest font-bold text-brand-600">Sertifikat Penyelesaian Modul</h4>
+                                    <h2 class="text-3xl font-extrabold text-slate-900 font-serif">Sertifikat Penghargaan</h2>
+                                    <p class="text-xs text-slate-500 italic">Diberikan dengan bangga kepada:</p>
+                                </div>
+                                <div class="py-2">
+                                    <h3 id="certStudentName" class="text-2xl font-bold text-slate-900 border-b-2 border-slate-300 inline-block px-8 pb-1">Nama Siswa</h3>
+                                    <p id="certStudentClass" class="text-xs text-slate-600 mt-1 font-medium">Kelas / Absen</p>
+                                </div>
+                                <p class="text-xs text-slate-600 max-w-lg mx-auto leading-relaxed">
+                                    Telah sukses menyelesaikan seluruh rangkaian materi interaktif, studi kasus analitis, serta Kuis Formatif HOTS Bab II tentang <strong>Peran Lembaga Penegak Hukum di Indonesia</strong> dengan predikat sangat memuaskan.
+                                </p>
+                                <div class="pt-6 flex justify-between items-end border-t border-slate-200 mt-6 px-4">
+                                    <div class="text-left">
+                                        <p class="text-[10px] text-slate-400">Skor Kuis HOTS Akhir</p>
+                                        <p id="certScoreVal" class="text-sm font-bold text-brand-600">0 / 100</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="text-xs text-slate-500 mb-6">Guru Pengampu Mata Pelajaran,</p>
+                                        <p class="font-bold text-slate-900 text-sm border-b border-slate-400 pb-0.5">Z. Asmarady, S.Pd.</p>
+                                        <p class="text-[10px] text-slate-500 mt-0.5">NIP. Pengampu PPKn SMA</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t flex justify-between">
+                            <button onclick="switchMod(4)" class="text-slate-600 text-sm font-medium"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                            <button id="finishBtn" onclick="finishCourse()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-6 py-2.5 rounded-lg shadow flex items-center gap-2">
+                                <i class="fa-solid fa-paper-plane"></i> Kirim Rekapitulasi & Selesai
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ================= 3. TEACHER DASHBOARD ================= -->
+    <div id="teacherDashboard" class="hidden min-h-screen bg-slate-100 p-4 sm:p-8">
+        <div class="max-w-6xl mx-auto space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-slate-200">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900"><i class="fa-solid fa-gauge-high text-brand-600"></i> Dashboard Guru - Rekap Hasil Belajar HOTS</h2>
+                    <p class="text-xs text-slate-500">Mata Pelajaran PPKn Kelas 12 • Guru Pengampu: <strong class="text-slate-800">Z. Asmarady, S.Pd.</strong></p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="downloadCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+                        <i class="fa-solid fa-file-excel"></i> Unduh Excel (CSV)
+                    </button>
+                    <button onclick="syncToSpreadsheet()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Info Spreadsheet
+                    </button>
+                    <button onclick="logout()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl transition">
+                        Keluar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-medium">Total Siswa Menuntaskan</p>
+                    <h3 id="statTotalStudents" class="text-2xl font-bold text-slate-900 mt-1">0</h3>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-medium">Rata-Rata Nilai Kuis HOTS</p>
+                    <h3 id="statAvgScore" class="text-2xl font-bold text-brand-600 mt-1">0</h3>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-medium">Status Penyimpanan Database</p>
+                    <h3 id="statSheetStatus" class="text-xs font-bold text-emerald-600 mt-2 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> LocalStorage & Auto Webhook Ready</h3>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-sm">Daftar Nilai Siswa & Komitmen Refleksi</h3>
+                        <p class="text-[11px] text-slate-500">Pengampu: Z. Asmarady, S.Pd.</p>
+                    </div>
+                    <button onclick="clearStudentData()" class="text-xs text-red-500 hover:text-red-700 font-medium">Reset Data Rekap</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 text-xs text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-4">Nama Siswa</th>
+                                <th class="p-4">Kelas / Absen</th>
+                                <th class="p-4">Skor HOTS</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4">Refleksi Kepatuhan Hukum</th>
+                                <th class="p-4">Waktu Selesai</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody" class="divide-y divide-slate-100 text-slate-700">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        const modulesData = [
+            { id: 1, title: 'Pengantar & Mood', icon: 'fa-face-smile' },
+            { id: 2, title: 'Materi & Struktur Hukum', icon: 'fa-book-open' },
+            { id: 3, title: 'Eksplorasi Kasus', icon: 'fa-magnifying-glass-chart' },
+            { id: 4, title: 'Kuis Formatif HOTS', icon: 'fa-pen-to-square' },
+            { id: 5, title: 'Refleksi & Kelulusan', icon: 'fa-flag-checkered' }
+        ];
+
+        let currentUser = null;
+        let studentState = { currentModule: 1, unlockedModules: [1], completedModules: [], quizScore: 0 };
+
+        const GOOGLE_SCRIPT_URL = ""; 
+
+        window.onload = function() {
+            try {
+                const savedUser = localStorage.getItem('lms_current_user');
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                    if (currentUser && currentUser.role === 'teacher') {
+                        showTeacherDashboard();
+                    } else if (currentUser && currentUser.role === 'student') {
+                        startStudentSession();
+                    }
+                }
+            } catch (err) {
+                console.error("Initialization error:", err);
+            }
+        };
+
+        function switchLoginTab(role) {
+            const studentBtn = document.getElementById('tabStudentBtn');
+            const teacherBtn = document.getElementById('tabTeacherBtn');
+            const studentForm = document.getElementById('studentLoginForm');
+            const teacherForm = document.getElementById('teacherLoginForm');
+
+            if (role === 'student') {
+                studentBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-white text-brand-600 shadow-sm transition";
+                teacherBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-800 transition";
+                studentForm.classList.remove('hidden');
+                teacherForm.classList.add('hidden');
+            } else {
+                teacherBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-sm transition";
+                studentBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-800 transition";
+                teacherForm.classList.remove('hidden');
+                studentForm.classList.add('hidden');
+            }
+        }
+
+        function handleStudentLogin(e) {
+            if (e) e.preventDefault();
+            const nameEl = document.getElementById('studentNameInput');
+            const classEl = document.getElementById('studentClassInput');
+            
+            if (!nameEl || !classEl) return;
+            const name = nameEl.value.trim();
+            const studentClass = classEl.value.trim();
+
+            if (!name || !studentClass) {
+                alert('Mohon isi nama dan kelas dengan lengkap.');
+                return;
+            }
+
+            currentUser = { name: name, class: studentClass, role: 'student' };
+            localStorage.setItem('lms_current_user', JSON.stringify(currentUser));
+            
+            const savedProg = localStorage.getItem(`lms_prog_${name}_${studentClass}`);
+            if (savedProg) {
+                try {
+                    studentState = JSON.parse(savedProg);
+                } catch(err) {
+                    studentState = { currentModule: 1, unlockedModules: [1], completedModules: [], quizScore: 0 };
+                }
+            } else {
+                studentState = { currentModule: 1, unlockedModules: [1], completedModules: [], quizScore: 0 };
+            }
+
+            const loginScreen = document.getElementById('loginScreen');
+            if (loginScreen) loginScreen.classList.add('hidden');
+            startStudentSession();
+        }
+
+        function handleTeacherLogin(e) {
+            if (e) e.preventDefault();
+            const passEl = document.getElementById('teacherPasswordInput');
+            if (!passEl) return;
+            const pass = passEl.value;
+
+            if (pass === 'guru1a' || pass === 'z.asmarady') {
+                currentUser = { name: 'Z. Asmarady, S.Pd.', role: 'teacher' };
+                localStorage.setItem('lms_current_user', JSON.stringify(currentUser));
+                const loginScreen = document.getElementById('loginScreen');
+                if (loginScreen) loginScreen.classList.add('hidden');
+                showTeacherDashboard();
+            } else {
+                alert('Password guru salah! (Password default: guru123)');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('lms_current_user');
+            location.reload();
+        }
+
+        function startStudentSession() {
+            const mainApp = document.getElementById('mainAppContainer');
+            if (mainApp) {
+                mainApp.classList.remove('hidden');
+                mainApp.classList.add('flex');
+            }
+            const navName = document.getElementById('navStudentName');
+            if (navName && currentUser) {
+                navName.innerText = `${currentUser.name} (${currentUser.class})`;
+            }
+            renderSidebar();
+            switchMod(studentState.currentModule);
+            updateProgressBar();
+            setupMobileSidebar();
+        }
+
+        function renderSidebar() {
+            const list = document.getElementById('moduleNavList');
+            if (!list) return;
+            list.innerHTML = '';
+            modulesData.forEach(mod => {
+                const isUnlocked = studentState.unlockedModules.includes(mod.id);
+                const isCompleted = studentState.completedModules.includes(mod.id);
+                const isActive = studentState.currentModule === mod.id;
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `w-full text-left p-3 rounded-lg flex items-center justify-between text-xs sm:text-sm font-medium transition ${
+                    isActive ? 'bg-brand-50 text-brand-700 border border-brand-200 font-semibold' : isUnlocked ? 'text-slate-700 hover:bg-slate-100' : 'text-slate-400 bg-slate-50 cursor-not-allowed'
+                }`;
+                btn.onclick = () => { if (isUnlocked) { switchMod(mod.id); closeMobileSidebar(); } };
+                
+                let icon = `<i class="fa-solid fa-lock text-slate-400"></i>`;
+                if (isCompleted) icon = `<i class="fa-solid fa-circle-check text-emerald-500"></i>`;
+                else if (isActive) icon = `<i class="fa-solid fa-circle-dot text-brand-600 animate-pulse"></i>`;
+                else if (isUnlocked) icon = `<i class="fa-regular fa-circle text-slate-300"></i>`;
+
+                btn.innerHTML = `<div class="flex items-center gap-2.5 truncate"><i class="fa-solid ${mod.icon}"></i><span class="truncate">${mod.id}. ${mod.title}</span></div><div>${icon}</div>`;
+                list.appendChild(btn);
+            });
+        }
+
+        function switchMod(id) {
+            if (!studentState.unlockedModules.includes(id)) return;
+            studentState.currentModule = id;
+            saveStudentProgress();
+            document.querySelectorAll('.module-card').forEach(c => c.classList.add('hidden'));
+            const targetMod = document.getElementById(`module-${id}`);
+            if (targetMod) targetMod.classList.remove('hidden');
+            renderSidebar();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function completeModule(id) {
+            if (!studentState.completedModules.includes(id)) studentState.completedModules.push(id);
+            const next = id + 1;
+            if (next <= modulesData.length && !studentState.unlockedModules.includes(next)) {
+                studentState.unlockedModules.push(next);
+            }
+            saveStudentProgress();
+            updateProgressBar();
+            if (next <= modulesData.length) {
+                switchMod(next);
+            }
+        }
+
+        function saveStudentProgress() {
+            if (!currentUser || currentUser.role !== 'student') return;
+            localStorage.setItem(`lms_prog_${currentUser.name}_${currentUser.class}`, JSON.stringify(studentState));
+        }
+
+        function updateProgressBar() {
+            const pct = Math.round((studentState.completedModules.length / modulesData.length) * 100);
+            const pctEl = document.getElementById('progressPercent');
+            const barEl = document.getElementById('progressBar');
+            if (pctEl) pctEl.innerText = `${pct}%`;
+            if (barEl) barEl.style.width = `${pct}%`;
+        }
+
+        function setMood(m, btn) {
+            document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('border-brand-500', 'bg-brand-50'));
+            btn.classList.add('border-brand-500', 'bg-brand-50');
+            const fb = document.getElementById('moodFeedback');
+            if (fb) {
+                fb.classList.remove('hidden');
+                fb.className = "mt-4 p-4 rounded-lg text-sm bg-blue-50 text-blue-800 font-medium";
+                fb.innerText = `Terima kasih atas responnya! Mari kita bedah struktur materi dan analisis hukum secara mendalam di bawah bimbingan Guru Z. Asmarady, S.Pd.`;
+            }
+        }
+
+        function toggleAcc(id) {
+            const el = document.getElementById(id);
+            const ico = document.getElementById(`ico-${id}`);
+            if (!el) return;
+            if (el.classList.contains('open')) {
+                el.style.maxHeight = '0';
+                el.classList.remove('open');
+                if(ico) ico.style.transform = 'rotate(0deg)';
+            } else {
+                el.classList.add('open');
+                el.style.maxHeight = el.scrollHeight + 'px';
+                if(ico) ico.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        function checkCase() {
+            const sel = document.querySelector('input[name="caseAns"]:checked');
+            const fb = document.getElementById('caseFeedback');
+            if (!fb) return;
+            fb.classList.remove('hidden');
+            if (sel && sel.value === 'B') {
+                fb.className = "p-4 rounded-lg text-xs font-medium bg-emerald-100 text-emerald-900 border border-emerald-200";
+                fb.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 text-sm mr-1"></i> <strong>Analisis Tepat!</strong> Kejaksaan memegang monopoli penuntutan (Dominus Litis), sedangkan Hakim di pengadilan memegang kewenangan independen untuk memutus perkara.`;
+            } else {
+                fb.className = "p-4 rounded-lg text-xs font-medium bg-red-100 text-red-900 border border-red-200";
+                fb.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-600 text-sm mr-1"></i> <strong>Analisis Kurang Tepat.</strong> Jawaban yang benar adalah B. Lembaga B bertugas menuntut (Kejaksaan) dan Lembaga D bertugas memutus (Hakim/Pengadilan).`;
+            }
+        }
+
+        function submitQuiz() {
+            const f = document.getElementById('quizForm');
+            if (!f) return;
+            let score = 0;
+            if (f.q1 && f.q1.value === 'B') score += 20;
+            if (f.q2 && f.q2.value === 'A') score += 20;
+            if (f.q3 && f.q3.value === 'B') score += 20;
+            if (f.q4 && f.q4.value === 'B') score += 20;
+            if (f.q5 && f.q5.value === 'A') score += 20;
+
+            studentState.quizScore = score;
+            saveStudentProgress();
+
+            const res = document.getElementById('quizResultBox');
+            if (res) {
+                res.classList.remove('hidden');
+                if (studentState.quizScore >= 60) {
+                    res.className = "p-4 rounded-xl text-center text-sm bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold";
+                    res.innerHTML = `<i class="fa-solid fa-circle-check"></i> Selamat! Anda Lulus Kuis HOTS dengan Skor: ${studentState.quizScore} / 100`;
+                    const nextBtn = document.getElementById('nextMod4Btn');
+                    if (nextBtn) nextBtn.classList.remove('hidden');
+                } else {
+                    res.className = "p-4 rounded-xl text-center text-sm bg-red-50 text-red-800 border border-red-200 font-bold";
+                    res.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Skor Anda: ${studentState.quizScore} / 100 (Belum mencapai KKM 60). Silakan evaluasi kembali jawaban Anda.`;
+                }
+            }
+        }
+
+        function finishCourse() {
+            completeModule(5);
+            const refEl = document.getElementById('reflectionText');
+            const refText = refEl ? refEl.value : '';
+            const record = {
+                name: currentUser.name,
+                class: currentUser.class,
+                score: studentState.quizScore || 100,
+                status: 'Lulus',
+                reflection: refText || 'Tidak menambahkan catatan refleksi.',
+                time: new Date().toLocaleString('id-ID')
+            };
+
+            let submissions = JSON.parse(localStorage.getItem('lms_all_submissions') || '[]');
+            submissions = submissions.filter(s => !(s.name === record.name && s.class === record.class));
+            submissions.push(record);
+            localStorage.setItem('lms_all_submissions', JSON.stringify(submissions));
+
+            const finalScoreVal = document.getElementById('finalScoreVal');
+            if (finalScoreVal) finalScoreVal.innerText = record.score;
+            const certCard = document.getElementById('certCard');
+            if (certCard) certCard.classList.remove('hidden');
+
+            if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.includes("http")) {
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(record)
+                }).catch(err => console.log('Webhook error', err));
+            }
+
+            if (typeof confetti === 'function') confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+        }
+
+        function downloadCertificate() {
+            if (!currentUser) return;
+            const nameEl = document.getElementById('certStudentName');
+            const classEl = document.getElementById('certStudentClass');
+            const scoreEl = document.getElementById('certScoreVal');
+            
+            if(nameEl) nameEl.innerText = currentUser.name;
+            if(classEl) classEl.innerText = `Kelas: ${currentUser.class}`;
+            if(scoreEl) scoreEl.innerText = `${studentState.quizScore || 100} / 100`;
+
+            const template = document.getElementById('certificateTemplate');
+            if (!template) return;
+            template.classList.remove('hidden');
+
+            if (typeof html2canvas === 'function') {
+                html2canvas(template, { scale: 2 }).then(canvas => {
+                    template.classList.add('hidden');
+                    const link = document.createElement('a');
+                    link.download = `Sertifikat_PPKn_${currentUser.name.replace(/\s+/g, '_')}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    if (typeof confetti === 'function') confetti({ particleCount: 100, spread: 70, origin: { y: 0.5 } });
+                }).catch(err => {
+                    console.error("Gagal membuat sertifikat:", err);
+                    template.classList.add('hidden');
+                    alert("Gagal mengunduh sertifikat otomatis. Silakan coba lagi.");
+                });
+            } else {
+                template.classList.add('hidden');
+                alert("Library downloader belum siap.");
+            }
+        }
+
+        function showTeacherDashboard() {
+            const dash = document.getElementById('teacherDashboard');
+            if (dash) dash.classList.remove('hidden');
+            loadTeacherStats();
+        }
+
+        function loadTeacherStats() {
+            const subs = JSON.parse(localStorage.getItem('lms_all_submissions') || '[]');
+            const totalStudents = document.getElementById('statTotalStudents');
+            if (totalStudents) totalStudents.innerText = subs.length;
+            
+            let totalScore = subs.reduce((acc, curr) => acc + Number(curr.score), 0);
+            let avg = subs.length > 0 ? Math.round(totalScore / subs.length) : 0;
+            const avgScoreEl = document.getElementById('statAvgScore');
+            if (avgScoreEl) avgScoreEl.innerText = `${avg} / 100`;
+
+            const tbody = document.getElementById('studentTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            if (subs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data siswa yang mengirimkan tugas.</td></tr>`;
+                return;
+            }
+
+            subs.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="p-4 font-semibold text-slate-900">${s.name}</td>
+                    <td class="p-4 text-slate-600">${s.class}</td>
+                    <td class="p-4"><span class="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md font-bold text-xs border border-blue-200">${s.score}</span></td>
+                    <td class="p-4"><span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md font-medium text-xs border border-emerald-200">${s.status}</span></td>
+                    <td class="p-4 text-xs text-slate-600 max-w-xs leading-snug">${s.reflection}</td>
+                    <td class="p-4 text-xs text-slate-400">${s.time}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function downloadCSV() {
+            const subs = JSON.parse(localStorage.getItem('lms_all_submissions') || '[]');
+            if (subs.length === 0) { alert('Belum ada data siswa.'); return; }
+            
+            let csv = "Nama,Kelas,Skor HOTS,Status,Refleksi,Waktu Selesai\n";
+            subs.forEach(s => {
+                csv += `"${s.name}","${s.class}",${s.score},"${s.status}","${s.reflection.replace(/"/g, '""')}","${s.time}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Rekap_Nilai_PPKn_HOTS_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+        }
+
+        function syncToSpreadsheet() {
+            alert("Panduan Koneksi Google Spreadsheet:\n1. Buat Google Apps Script Web App.\n2. Isikan fungsi doPost(e) untuk menerima JSON payload.\n3. Salin URL Web App ke variabel GOOGLE_SCRIPT_URL di baris kode JS aplikasi ini.");
+        }
+
+        function clearStudentData() {
+            if (confirm("Apakah Anda yakin ingin mengosongkan seluruh rekap nilai siswa?")) {
+                localStorage.removeItem('lms_all_submissions');
+                loadTeacherStats();
+            }
+        }
+
+        function setupMobileSidebar() {
+            const btn = document.getElementById('mobileMenuBtn');
+            const closeBtn = document.getElementById('closeSidebarBtn');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (btn && sidebar && overlay) {
+                btn.onclick = () => { sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); };
+            }
+            if (closeBtn && sidebar && overlay) {
+                closeBtn.onclick = closeMobileSidebar;
+            }
+            if (overlay && sidebar) {
+                overlay.onclick = closeMobileSidebar;
+            }
+        }
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (sidebar) sidebar.classList.add('-translate-x-full');
+            if (overlay) overlay.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
